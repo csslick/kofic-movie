@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>박스오피스 순위</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+    }
+    body {
+      background: #ccc;
+      padding: 40px;
+    }
+
+    h1{
+      margin: 1rem 0;
+    }
+
+    h2 {
+      margin-bottom: 10px;
+      color: #333;
+    }
+    
+
+    .movieThumb {
+      display: flex;
+      outline: 1px solid #ccc;
+      width: 90%;
+      padding: 20px;
+      margin-bottom: 20px;
+      background: #fff;
+      border-radius: 10px;
+      align-items: center;
+    }
+    .movieThumb h4{
+      width: 18em;
+    }
+    .movieThumb p {
+      margin-left: 4em;
+    }
+  </style>
+</head>
+<body>
+  <section>
+    <h1>영화 박스오피스</h1>
+    <div id="info"></div>
+  </section>
+
+  <script>
+    // 최근날짜 조회
+    let d = new Date()
+    let year = d.getFullYear();
+    let month = d.getMonth() + 1
+    if(month < 10) month = '0' + month
+    let date = d.getDate() - 1 // 어제(금일은 안됨)
+    if(date < 10) data = '0' + date
+    let today = year + month + date;
+    console.log(today) 
+    const API_URL = 'http://www.kobis.or.kr/kobisopenapi/webservice/rest/boxoffice/searchDailyBoxOfficeList.json'
+    const API_KEY = '?key=c3986114beeed04b56f183d1b2d9bf25'
+    const API_DATE = '&targetDt=' + today
+
+    // Fetch Movie Data
+    fetch(API_URL+API_KEY+API_DATE)
+      .then(res => res.json())
+      .then(data => {
+        console.log(data)
+        showMovieInfo(data.boxOfficeResult.dailyBoxOfficeList);
+      })
+      
+    function showMovieInfo(movies) {
+      console.log(movies)
+      let html = '';
+
+      movies.forEach(function(movie, i){
+        const title = movie.movieNm;  // 영화명(국문)
+        const openDate = movie.openDt; // 개봉일
+        const rank = movie.rank;  // 순위
+        const audiAcc = movie.audiAcc; // 누적관객수
+
+        html += `
+          <div class="movieThumb">
+            <h4>${i+1}. ${title}</h4>
+            <p>개봉일: ${openDate}</p>
+            <p>순위: ${rank}</p>
+            <p>누적관객수: ${Number(audiAcc).toLocaleString()}</p>
+          </div>
+        `
+        document.getElementById('info').innerHTML = html
+      })
+    }
+  </script>
+</body>
+</html>
